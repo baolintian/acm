@@ -1,0 +1,31 @@
+\subsection{Tarjan求割点}
+$O(n+m)$
+\begin{lstlisting}[language=C]
+bool is_cut[MAXN];
+inline void adde(int f,int t)
+{
+	to[++cnt]=t,next[cnt]=head[f],head[f]=cnt;
+	to[++cnt]=f,next[cnt]=head[t],head[t]=cnt;
+}
+void tarjan(int x)
+{
+	dfn[x]=low[x]=++dfsclock;
+	int ch=0;
+	for(int i=head[x];i;i=next[i])
+		if(fa[x]!=to[i])
+		{
+			if(!dfn[to[i]])
+			{
+				fa[to[i]]=x,ch++;
+				tarjan(to[i]);
+				low[x]=min(low[x],low[to[i]]);
+				if(x!=1&&low[to[i]]>=dfn[x])
+					is_cut[x]=true;
+			}
+			else if(dfn[to[i]]<dfn[x])
+				low[x]=min(low[x],dfn[to[i]]);
+		}
+	if(x==1&&ch>=2) is_cut[x]=true;
+	if(x==1) sz=0;
+}
+\end{lstlisting}

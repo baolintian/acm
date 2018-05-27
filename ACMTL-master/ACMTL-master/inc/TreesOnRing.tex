@@ -1,0 +1,36 @@
+\subsection{基环树}
+$O(n+m)$
+
+\texttt{Cir}数组代表环上的点，按照某一顺序给出，\texttt{tot}为环上一共有多少点，用\texttt{preEdge}和\texttt{nextEdge}可以用不同方向遍历环，\texttt{inCir}表示某条边是否是在环上的
+\begin{lstlisting}[language=C]
+int dfn[MAXN],dfs_clock;
+int fa[MAXN],faEdge[MAXN];
+int Cir[MAXN],preEdge[MAXN],nextEdge[MAXN],tot;
+bool inCir[MAXN];
+void GetCir(int x,int father)
+{
+    dfn[x]=++dfs_clock;
+    for(int i=head[x];i;i=next[i])
+        if((i^father)!=1)
+        {
+            if(!dfn[to[i]]) fa[to[i]]=x,faEdge[to[i]]=i,GetCir(to[i],i);
+            else if(dfn[to[i]]<dfn[x])
+            {
+                int p=x;
+                Cir[tot=1]=to[i];
+                inCir[i]=inCir[i^1]=true;
+                preEdge[to[i]]=i^1;
+                nextEdge[x]=i;
+                while(p!=to[i])
+                {
+                    int tmp=faEdge[p];
+                    Cir[++tot]=p;
+                    preEdge[p]=tmp^1;
+                    inCir[tmp]=inCir[tmp^1]=true; 
+                    p=fa[p];
+                    nextEdge[p]=tmp;
+                }
+            }
+        }
+}
+\end{lstlisting}

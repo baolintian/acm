@@ -1,0 +1,41 @@
+\subsection{二维树状数组}
+\begin{lstlisting}[language=C]
+int n;
+int t[2005][2005];
+void add(int x, int y, int v)
+{
+	for(int i = x; i <= n; i += i & -i)
+		for(int j = y; j <= n; j += j & -j)
+			t[i][j] += v;
+}
+int query(int x, int y)
+{
+	int ans = 0;
+	for(int i = x; i; i -= i & -i)
+		for(int j = y; j; j -= j & -j)
+			ans += t[i][j];
+	return ans;
+}
+int main()
+{
+	int opt, x, y, l, r, v;
+	opt = read(); n = read();
+	memset(t, 0, sizeof(t));
+	while(1)
+	{
+		opt = read();
+		if(opt == 3)break;
+		if(opt == 1)
+		{
+			x = read(), y = read(), v = read();
+			add(x + 1, y + 1, v);
+		}
+		else
+		{
+			x = read(), y = read(), l = read(), r = read();
+			printf("%d\n", query(l + 1, r + 1) - query(l + 1, y) - query(x, r + 1) + query(x, y));
+		}
+	}
+	return 0;
+}
+\end{lstlisting}

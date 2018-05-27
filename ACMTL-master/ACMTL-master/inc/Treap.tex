@@ -1,0 +1,39 @@
+\subsection{Treap}
+\begin{lstlisting}[language=C]
+struct treap{
+	int cnt,rt;
+	int l[N],r[N],size[N],v[N],w[N],rnd[N];
+	void ini(){
+		cnt=rt=0;
+	}
+	void update(int k){
+		size[k]=size[l[k]]+size[r[k]]+w[k];
+	}
+	void rturn(int &k){
+		int t=l[k];l[k]=r[t];r[t]=k;update(k);update(t);k=t;
+	}
+	void lturn(int &k){
+		int t=r[k];r[k]=l[t];l[t]=k;update(k);update(t);k=t;
+	}
+	void insert(int &k,int val){
+		if(!k)
+		{
+			k=++cnt;rnd[k]=rand();w[k]=size[k]=1;v[k]=val;
+			l[k]=r[k]=0;
+			return;
+		}
+		size[k]++;
+		if(val==v[k])w[k]++;
+		else if(val<v[k]){insert(l[k],val);if(rnd[l[k]]<rnd[k])rturn(k);}
+		else {insert(r[k],val);if(rnd[r[k]]<rnd[k])lturn(k);}
+	}
+	int query(int k,int val){//求小于val的元素个数
+		if(!k)return 0;
+		if(v[k]==val)
+			return size[l[k]];
+		else if(v[k]<val)
+			return size[l[k]]+w[k]+query(r[k],val);
+		else return query(l[k],val);
+	}
+}treap;
+\end{lstlisting}

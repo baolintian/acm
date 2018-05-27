@@ -1,0 +1,83 @@
+\subsection{AC自动机}
+\begin{lstlisting}[language=C] 
+#define Nil NULL
+const int SIZES=1000010,SIZEN=100010;
+class Node{
+public:
+	int flag;//是否敏感词
+	Node* ch[26];
+	Node* fail;
+	Node(){
+		flag=-1;
+		memset(ch,0,sizeof(ch));
+		fail=Nil;
+	}
+};
+Node *root;
+Node* step(Node *x,int k){
+	while(true){
+		if(x->ch[k]!=Nil) return x->ch[k];
+		if(x==root) return root;
+		x=x->fail;
+	}
+}
+queue<Node*> Q;
+void make_automaton(void){
+	root->fail=root;
+	Q.push(root);
+	while(!Q.empty()){
+		Node *x=Q.front();Q.pop();
+		for(int i=0;i<26;i++){
+			if(x->ch[i]!=Nil){
+				if(x==root) x->ch[i]->fail=root;
+				else x->ch[i]->fail=step(x->fail,i);
+				Q.push(x->ch[i]);
+			}
+			else x->ch[i]=step(x,i);
+		}
+	}
+}
+\end{lstlisting} 
+\subsection{ZYH版本AC自动机}
+使用时注意把下面的26改成字符集大小
+\begin{lstlisting}[language=C]
+struct AC_Automaton
+{
+    int ch[6];
+    int fail;
+    void init()
+    {
+        memset(ch,0,sizeof(ch));
+        fail=0;
+    }
+}T[MAXN];
+int tot;
+void insert(int s[],int len)
+{
+    int o=0;
+    for(int i=0;i<len;i++)
+    {
+        if(!T[o].ch[s[i]]) T[o].ch[s[i]]=++tot;
+        o=T[o].ch[s[i]];
+    }
+}
+int q[MAXN],l,r;
+void getFail()
+{
+    l=1,r=0;
+    for(int i=0;i<6;i++)
+        if(T[0].ch[i]) q[++r]=T[0].ch[i];
+    while(l<=r)
+    {
+        int x=q[l++];
+        for(int i=0;i<26;i++)
+        {
+            if(!T[x].ch[i]) {T[x].ch[i]=T[T[x].fail].ch[i];continue;}
+            int o=T[x].fail;
+            while(o&&!T[o].ch[i]) o=T[o].fail;
+            T[T[x].ch[i]].fail=T[o].ch[i];
+            q[++r]=T[x].ch[i];
+        }
+    }
+}
+\end{lstlisting}

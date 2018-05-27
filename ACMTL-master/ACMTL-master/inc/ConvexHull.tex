@@ -1,0 +1,38 @@
+\subsection{凸包}
+\begin{lstlisting}[language=C]
+const double eps=1e-10;
+struct Point
+{
+    double x,y;
+    Point(){}
+    Point(double _x,double _y):x(_x),y(_y){}
+}P[100010],Sta[100010];
+typedef Point Vector;
+Vector operator+(const Vector &p,const Vector &q){return Vector(p.x+q.x,p.y+q.y);}
+Vector operator-(const Vector &p,const Vector &q){return Vector(p.x-q.x,p.y-q.y);}
+Vector operator*(const Vector &p,double k){return Vector(p.x*k,p.y*k);}
+Vector operator/(const Vector &p,double k){return Vector(p.x/k,p.y/k);}
+double Dot(const Vector &p,const Vector &q){return p.x*q.x+p.y*q.y;}
+double Cross(const Vector &p,const Vector &q){return p.x*q.y-p.y*q.x;}
+bool cmp_x(const Point &p,const Point &q) 
+{
+        return (fabs(p.x-q.x)<eps)?(p.y+eps<q.y):(p.x+eps<q.x);
+}
+int top;
+void Convex_Hull()
+{
+    sort(P+1,P+n+1,cmp_x);
+    for(int i=1;i<=n;i++)
+    {   
+        while(top>=2&&Cross(P[i]-Sta[top],Sta[top]-Sta[top-1])>=0) top--;
+        Sta[++top]=P[i];
+    }   
+    int m=top;
+    for(int i=n-1;i>=1;i--)
+    {   
+        while(top>=m+1&&Cross(P[i]-Sta[top],Sta[top]-Sta[top-1])>=0) top--;
+        Sta[++top]=P[i];
+    }   
+    if(n>=2) top--;
+}
+\end{lstlisting}

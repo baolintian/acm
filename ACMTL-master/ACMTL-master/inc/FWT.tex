@@ -1,0 +1,81 @@
+\subsection{FWT}
+求N个小于M的素数异或起来等于0的方案数
+
+Xor：
+
+tf(f) = (tf(f0 - f1), tf (f0 + f1))
+
+utf(h) = (utf((f0 + f1)/2), utf((f1 - f0)/2))
+
+And:
+
+tf(f) = (tf(f0 + f1), tf(f1))
+
+utf(h) = (utf((f0 - f1)/2), utf(f1))
+
+Or:
+
+tf(f) = (tf(f0), tf(f0 + f1))
+
+utf(h) = (utf(f0), utf(f1 - f0))
+\begin{lstlisting}[language=C]
+int T;
+int n, m, L;
+ll ine;
+bool mark[50005];
+ll A[65536];
+ll qpow(ll a, ll b)
+{
+    ll ans = 1;
+    for(ll i = b; i; i >>= 1, a = a * a % mod)
+        if(i & 1)ans = ans * a % mod;
+    return ans;
+}
+void fwt(ll *A, int n)
+{
+    if(n == 1)return;
+    int h = n >> 1;
+    fwt(A, h); fwt(A + h, h);
+    for(int i = 0; i < h; i++)
+    {
+        ll u = A[i], v = A[i + h];
+        A[i] = (u + v) % mod;
+        A[i + h] = (u - v + mod) % mod;
+    }
+}
+void ifwt(ll *A, int n)
+{
+    if(n == 1)return;
+    int h = n >> 1;
+    for(int i = 0; i < h; i++)
+    {
+        ll u = A[i], v = A[i + h];
+        A[i] = (u + v) * ine % mod;
+        A[i + h] = ((u - v + mod) % mod) * ine % mod;
+    }
+    ifwt(A, h); ifwt(A + h, h);
+}
+int main()
+{
+    mark[1] = 1;
+    for(int i = 2; i <= 50000; i++)
+        if(!mark[i])
+            for(int j = i + i; j <= 50000; j += i)
+                mark[j] = 1;
+    T = read();
+    ine = qpow(2, mod - 2);
+    while(T--)
+    {
+        memset(A, 0, sizeof(A));
+        n = read(); m = read();
+        for(L = 1; L <= m; L <<= 1);
+        for(int i = 1; i <= m; i++)
+            if(!mark[i])A[i] = 1;
+        fwt(A, L);
+        for(int i = 0; i < L; i++)A[i] = qpow(A[i], n);
+        ifwt(A, L);
+        cout << A[0] << endl;
+    }
+    return 0;
+}
+\end{lstlisting}

@@ -1,0 +1,126 @@
+\subsection{FFT线性递推}
+$O(k \log k \log n)$
+
+$c$是系数，$a$为初始值，下标从$1$开始，$a_n = \sum_{k=1}^{K} c_k a_{n-k}$s
+\begin{lstlisting}[language=C]
+#include<iostream>
+#include<cstdio>
+#include<algorithm>
+#include<cstring>
+using namespace std;
+typedef long long LL;
+const int MAXN=120010;
+const int MOD=104857601;
+const int g=3;
+LL N;
+int K,a[MAXN],c[MAXN];
+int MO[MAXN],revMO[MAXN],invrevMO[MAXN],k=1;
+int p[MAXN],x[MAXN],ans;
+int qpow(int x,int n,int MOD)
+{
+	int con=1,p=x;
+	while(n)
+	{
+		if(n&1) con=(LL)con*p%MOD;
+		p=(LL)p*p%MOD;
+		n>>=1;
+	}
+	return con;
+}
+int w[2][MAXN];
+void initFFT(int k)
+{
+	int step=qpow(g,(MOD-1)/k,MOD);
+	w[0][0]=w[1][k]=1;
+	for(int i=1;i<=k;i++)
+		w[0][i]=w[1][k-i]=(LL)w[0][i-1]*step%MOD;
+}
+void FFT(int x[],int k,int v)
+{
+	int i,j,l,tmp;
+	for(i=j=0;i<k;i++)
+	{
+		if(i>j) swap(x[i],x[j]);
+		for(l=k>>1;(j^=l)<l;l>>=1);
+	}
+	for(i=2;i<=k;i<<=1)
+		for(j=0;j<k;j+=i)
+			for(l=0;l<(i>>1);l++)
+			{
+				tmp=(LL)x[j+l+(i>>1)]*w[v][k/i*l]%MOD;
+				x[j+l+(i>>1)]=(x[j+l]-tmp+MOD)%MOD;
+				x[j+l]=(x[j+l]+tmp)%MOD;
+			}
+	if(v)
+	{
+		int inv=qpow(k,MOD-2,MOD);
+		for(int i=0;i<k;i++) x[i]=(LL)x[i]*inv%MOD;
+	}
+}
+void GetInv(int x[],int inv[],int k)
+{
+	static int tmp[MAXN];
+	k<<=1;
+	for(int i=0;i<k;i++) inv[i]=0;
+	inv[0]=qpow(x[0],MOD-2,MOD);
+	for(int t=2;t<k;t<<=1)
+	{
+		for(int i=0;i<t;i++) tmp[i]=x[i];
+		initFFT(t<<1);
+		FFT(inv,t<<1,0),FFT(tmp,t<<1,0);
+		for(int i=0;i<(t<<1);i++)
+			inv[i]=(2LL-(LL)tmp[i]*inv[i]%MOD+MOD)*inv[i]%MOD;
+		FFT(inv,t<<1,1);
+		for(int i=t;i<(t<<1);i++) inv[i]=0;
+	}
+}
+void MulMod(int A[],int B[])
+{
+	static int a[MAXN],tmpa[MAXN],b[MAXN];
+	for(int i=0;i<(k<<1);i++) a[i]=A[i],b[i]=B[i];
+	initFFT(k<<1);
+	FFT(a,k<<1,0),FFT(b,k<<1,0);
+	for(int i=0;i<(k<<1);i++) a[i]=(LL)a[i]*b[i]%MOD;
+	FFT(a,k<<1,1);
+	for(int i=0;i<(k<<1);i++) tmpa[i]=a[i];
+	reverse(a,a+K+K-1);
+	for(int i=K-1;i<K+K-1;i++) a[i]=0;
+	FFT(a,k<<1,0);
+	for(int i=0;i<(k<<1);i++) a[i]=(LL)a[i]*invrevMO[i]%MOD;
+	FFT(a,k<<1,1);
+	reverse(a,a+K-1);
+	for(int i=K-1;i<(k<<1);i++) a[i]=0;
+	FFT(a,k<<1,0);
+	for(int i=0;i<(k<<1);i++) a[i]=(LL)a[i]*MO[i]%MOD;
+	FFT(a,k<<1,1);
+	for(int i=0;i<K;i++) a[i]=tmpa[i]-a[i];
+	for(int i=0;i<K;i++) if(a[i]<0) a[i]+=MOD;
+	for(int i=K;i<(k<<1);i++) a[i]=0;
+	for(int i=0;i<k;i++) A[i]=a[i];
+}
+int main()
+{
+	scanf("%d%lld",&K,&N);
+	for(int i=1;i<=K;i++) scanf("%d",&a[i]);
+	for(int i=1;i<=K;i++) scanf("%d",&c[i]);
+	for(int i=1;i<=K;i++) MO[K-i]=(MOD-c[i])%MOD;
+	MO[K]=1;
+	for(int i=0;i<=K;i++) revMO[i]=MO[K-i];
+	while(k<=K) k<<=1;
+	GetInv(revMO,invrevMO,k);
+	FFT(MO,k<<1,0);
+	FFT(invrevMO,k<<1,0);
+	p[1]=1,x[0]=1;
+	if(K==1) p[1]=0,p[0]=c[1];
+	N--;
+	while(N)
+	{
+		if(N&1) MulMod(x,p);
+		MulMod(p,p);
+		N>>=1;
+	}
+	for(int i=0;i<K;i++) ans=(ans+(LL)x[i]*a[i+1])%MOD;
+	printf("%d\n",ans);
+	return 0;
+}
+\end{lstlisting}

@@ -1,0 +1,79 @@
+\subsection{斜率优化(树上)}
+\begin{lstlisting}[language=C] 
+#include<queue>
+#include<cmath>
+#include<cstdio>
+#include<cstring>
+#include<cstdlib>
+#include<iostream>
+#include<algorithm>
+#define ll long long
+#define inf 1000000000
+#define N 100005
+using namespace std;
+int read()
+{
+    int x=0,f=1;char ch=getchar();
+    while(ch<'0'||ch>'9'){if(ch=='-')f=-1;ch=getchar();}
+    while(ch>='0'&&ch<='9'){x=x*10+ch-'0';ch=getchar();}
+    return x*f;
+}
+int T,n,P,cnt;
+ll d[100005],f[100005];
+struct data{
+    int to,next,v;
+}e[200005];
+int last[100005];
+void insert(int u,int v,int w)
+{
+    e[++cnt].to=v;e[cnt].next=last[u];last[u]=cnt;e[cnt].v=w;
+    e[++cnt].to=u;e[cnt].next=last[v];last[v]=cnt;e[cnt].v=w;
+}
+//slop>d_i
+double slop(int k,int j)
+{
+    return (double)(f[j]-f[k]+d[j]*d[j]-d[k]*d[k])/(2*d[j]-2*d[k]);
+}
+int q[100005],l,r;
+void dfs(int x,int fa)
+{
+    int tl=l,tr=r;
+    while(l<r&&slop(q[l],q[l+1])<=d[x])l++;
+    int t=q[l];
+    f[x]=min(d[x]*d[x],f[t]+(d[x]-d[t])*(d[x]-d[t])+P);
+    vector<int>qtmp;
+    while(l<r&&slop(q[r-1],q[r])>slop(q[r],x))
+        qtmp.push_back(q[r]),r--;
+    q[++r]=x;
+    for(int i=last[x];i;i=e[i].next)
+        if(e[i].to!=fa)
+        {
+            d[e[i].to]=d[x]+e[i].v;
+            dfs(e[i].to,x);
+        }
+    l=tl,r=tr;
+    for(int i=0;i<qtmp.size();i++)
+        q[tr-i]=qtmp[i];
+}
+int main()
+{
+    T=read();
+    while(T--)
+    {
+        memset(last,0,sizeof(last));cnt=0;
+        l=1,r=0;
+        n=read(),P=read();
+        for(int i=1;i<n;i++)
+        {
+            int u=read(),v=read(),w=read();
+            insert(u,v,w);
+        }
+        dfs(1,0);
+        ll ans=0;
+        for(int i=1;i<=n;i++)
+            ans=max(ans,f[i]);
+        cout<<ans<<endl;
+    }
+    return 0;
+}
+\end{lstlisting} 

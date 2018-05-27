@@ -1,0 +1,86 @@
+\subsection{Splay}
+\begin{lstlisting}[language=C] 
+//序列翻转
+int n,ans,rt;
+int a[300005];
+int c[300005][2],fa[300005],size[300005],val[300005];
+bool rev[300005];
+void update(int k)
+{
+	int l=c[k][0],r=c[k][1];
+	size[k]=size[l]+size[r]+1;
+}
+void rotate(int x,int &k)
+{
+	int y=fa[x],z=fa[y],l,r;
+	if(c[y][0]==x)l=0;else l=1;r=l^1;
+	if(y==k)k=x;
+	else {if(c[z][0]==y)c[z][0]=x;else c[z][1]=x;}
+	fa[x]=z;fa[y]=x;fa[c[x][r]]=y;
+	c[y][l]=c[x][r];c[x][r]=y;
+	update(y);update(x);
+}
+void splay(int x,int &k)
+{
+	while(x!=k)
+	{
+		int y=fa[x],z=fa[y];
+		if(y!=k)
+		{
+			if(c[y][0]==x^c[z][0]==y)rotate(x,k);
+			else rotate(y,k);
+		}
+		rotate(x,k);
+	}
+}
+void pushdown(int k)
+{
+	int l=c[k][0],r=c[k][1];
+	rev[k]^=1;rev[l]^=1;rev[r]^=1;
+	swap(c[k][0],c[k][1]);
+}
+void build(int l,int r,int f)
+{
+	if(l>r)return;
+	int mid=(l+r)>>1;
+	if(mid<f)c[f][0]=mid;
+	else c[f][1]=mid;
+	size[mid]=1;val[mid]=a[mid];fa[mid]=f;
+	if(l==r)return;
+	build(l,mid-1,mid);build(mid+1,r,mid);
+	update(mid);
+}
+int find(int k,int rk)
+{
+	if(rev[k])pushdown(k);
+	int l=c[k][0],r=c[k][1];
+	if(size[l]+1==rk)return k;
+	else if(size[l]>=rk)return find(l,rk);
+	else return find(r,rk-size[l]-1);
+}
+void rever(int l,int r)
+{
+	int x=find(rt,l),y=find(rt,r+2);
+	splay(x,rt);splay(y,c[x][1]);
+	int z=c[y][0];
+	rev[z]^=1;
+}
+int main()
+{
+	n=read();
+	for(int i=1;i<=n;i++)
+		a[i+1]=read();
+	build(1,n+2,0);rt=(n+3)>>1;
+	while(val[find(rt,2)]!=1)
+	{
+		ans++;
+		rever(1,val[find(rt,2)]);
+		if(ans>100000)
+		{
+			puts("-1");return 0;
+		}
+	}
+	printf("%d\n",ans);
+	return 0;
+}
+\end{lstlisting}

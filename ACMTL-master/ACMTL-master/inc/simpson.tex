@@ -1,0 +1,94 @@
+\subsection{辛普森积分}
+\begin{lstlisting}[language=C] 
+#include<map>
+#include<cmath>
+#include<ctime>
+#include<queue>
+#include<cstdio>
+#include<vector>
+#include<bitset>
+#include<cstring>
+#include<iostream>
+#include<algorithm>
+#define eps 1e-8
+#define pa pair<int,int>
+#define ll long long
+#define inf 1000000000
+using namespace std;
+struct P{
+    double x, y;
+    P(){}
+    P(double _x, double _y):x(_x), y(_y){}
+    friend P operator-(P a, P b){
+        return P(a.x - b.x, a.y - b.y);
+    }
+    friend double operator*(P a, P b){
+        return a.x * b.y - a.y * b.x;
+    }
+}p[105];
+struct L{
+    P a, b;
+}l[105];
+vector<double> ve;
+int n;
+double R;
+void add(double X, L l)
+{
+    if(l.a.x < X - eps && l.b.x < X - eps)return;
+    if(l.a.x > X + eps && l.b.x > X + eps)return;
+    if(fabs(X - l.a.x) < eps && fabs(X - l.b.x) < eps)return;
+    double t;
+    if(fabs(l.b.x - X) < eps)t = l.b.y;
+    else t = (X - l.a.x) / (l.b.x - X);    
+    ve.push_back(l.a.y + (l.b.y - l.a.y) * t / (t + 1));
+}
+double F(double X)
+{
+    if(abs(X) > R)return 0;
+    ve.clear();
+    for(int i = 1; i <= n; i++)
+        add(X, l[i]);
+    double U = sqrt(R * R - X * X), ANS = 0;
+    sort(ve.begin(), ve.end());
+    bool flag = 0;
+    for(int i = 0; i < (int)ve.size() - 1; i++)
+    {
+        flag ^= 1;
+        if(ve[i] > U)break;
+        if(flag)
+            ANS += min(ve[i + 1], U) - ve[i];
+    }
+    return ANS;
+}
+double cal(double fl, double fm, double fr, double L)
+{
+    return (fl + fm * 4 + fr) * L / 6;
+}
+double simpson(double l, double r, double fl, double fm, double fr, double S, int dep)
+{
+    double mid = (l + r) / 2;
+    double m1 = (l + mid) / 2, m2 = (r + mid) / 2;
+    double f1 = F(m1), f2 = F(m2);
+    double g1 = cal(fl, f1, fm, mid - l), g2 = cal(fm, f2, fr, r - mid);
+    if(fabs(g1 + g2 - S) < 1e-12 && dep >= 10)return g1 + g2;
+    return simpson(l, mid, fl, f1, fm, g1, dep + 1) + simpson(mid, r, fm, f2, fr, g2, dep + 1);    
+}
+double solve(double l, double r)
+{
+    if(l > r)return 0;
+    double mid = (l + r) / 2;
+    return simpson(l, r, 0, F(mid), 0, (F(l) + F(r) + F(mid) * 4) * (r - l) / 6, 0);
+}
+int main()
+{
+    scanf("%d%lf", &n, &R);
+    for(int i = 1; i <= n; i++)
+        scanf("%lf%lf", &p[i].x, &p[i].y);
+    p[n + 1] = p[1];
+    for(int i = 1; i <= n; i++)
+        l[i].a = p[i], l[i].b = p[i + 1];
+    double ANS = solve(-R, -2) + solve(-2, 1) + solve(1, R);
+    printf("%.10lf\n", ANS);
+    return 0;
+}
+\end{lstlisting} 

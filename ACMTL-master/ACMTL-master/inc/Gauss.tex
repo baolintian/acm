@@ -1,0 +1,28 @@
+\subsection{高斯消元}
+用高斯消元法解方程组
+\begin{lstlisting}[language=C]
+void Gauss()
+{
+    for(int i=1;i<=tot+1;i++)
+    {   
+        int tmp=i;
+        for(int j=i;j<=tot+1;j++)
+            if(fabs(A[j][i])>fabs(A[tmp][i])) tmp=j;
+        for(int j=1;j<=tot+2;j++) swap(A[i][j],A[tmp][j]);
+        for(int j=i+1;j<=tot+1;j++)
+        {   
+            double o=A[j][i]/A[i][i];
+            for(int k=1;k<=tot+2;k++)
+                A[j][k]-=o*A[i][k];
+        }    
+    }   
+}
+//回代
+for(int i=tot+1;i>=1;i--)
+{
+    double X=A[i][tot+2];
+    for(int j=i+1;j<=tot+1;j++)
+    X-=x[j]*A[i][j];
+    x[i]=X/A[i][i];
+}
+\end{lstlisting}

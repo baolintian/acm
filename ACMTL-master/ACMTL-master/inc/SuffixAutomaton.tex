@@ -1,0 +1,89 @@
+\subsection{广义后缀自动机}
+\begin{lstlisting}[language=C]
+typedef long long LL;
+#define Nil NULL
+const int SIZEN=100010;
+const int SIZE_SAM=100000*2*20+10;
+class Node{
+public:
+	int len;
+	Node *suflink;
+	Node *ch[10];
+	void clear(void){
+		len=0;
+		suflink=Nil;
+		memset(ch,0,sizeof(ch));
+	}
+	Node(void){clear();}
+};
+class Suffix_Automaton{
+public:
+	Node *root;
+	int n;
+	Node *lis[SIZE_SAM];
+	int findpos(Node *a){
+		if(a==Nil) return -1;
+		for(int i=0;i<n;i++){
+			if(lis[i]==a) return i;
+		}
+		return -2;
+	}
+	void print(Node *a){
+		cout<<"地址: "<<findpos(a)<<endl;
+		cout<<"len: "<<a->len<<endl;
+		cout<<"suflink: "<<findpos(a->suflink)<<endl;
+		for(int i=0;i<10;i++){if(a->ch[i]!=Nil){cout<<i<<" : "<<findpos(a->ch[i])<<endl;}}
+		cout<<endl;
+	}
+	Node* new_Node(void){//新创立一个长度为l的节点
+		Node *p=new Node;
+		lis[n++]=p;
+		return p;
+	}
+	void clear(void){
+		n=0;
+		root=new_Node();
+	}
+	Suffix_Automaton(void){clear();}
+	LL calc(void){
+		LL ans=0;
+		for(int i=1;i<n;i++){
+			Node *p=lis[i];
+			ans+=p->len-p->suflink->len;
+		}
+		return ans;
+	}
+	Node* insert(Node *last,int k){
+		//===和普通SAM的区别之处===
+		Node *cur=last->ch[k];
+		if(cur!=Nil&&cur->len==last->len+1) return cur;
+		else{
+			cur=new_Node();
+			cur->len=last->len+1;
+		}
+		//=========================
+		Node *p=last;
+		while(p!=Nil&&p->ch[k]==Nil){
+			p->ch[k]=cur;
+			p=p->suflink;
+		}
+		if(p==Nil) cur->suflink=root;
+		else{
+			Node *q=p->ch[k];
+			if(p->len+1==q->len) cur->suflink=q;
+			else{
+				Node *clone=new_Node();
+				*clone=*q;
+				clone->len=p->len+1;
+				cur->suflink=clone;
+				q->suflink=clone;
+				while(p!=Nil&&p->ch[k]==q){
+					p->ch[k]=clone;
+					p=p->suflink;
+				}
+			}
+		}
+		return cur;
+	}
+}MT;
+\end{lstlisting}

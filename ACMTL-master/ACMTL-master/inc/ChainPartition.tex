@@ -1,0 +1,168 @@
+\subsection{树链剖分}
+\begin{lstlisting}[language=C]
+int n, m, cnt, sz;
+bool vis[100005];
+int size[100005], bl[100005], pl[100005], dep[100005];
+int last[100005];
+int u[100005],v[100005],mark[100005];
+int fa[100005], ft[100005];
+struct edge{
+    int to, next, v;
+}e[200005];
+int L[400005], R[400005], S[400005], tag[400005];
+int find(int x)
+{
+    return x == fa[x]?x:fa[x] = find(fa[x]);
+}
+void insert(int u, int v)
+{
+    e[++cnt].to = v; e[cnt].next = last[u]; last[u] = cnt;
+    e[++cnt].to = u; e[cnt].next = last[v]; last[v] = cnt;
+}
+void dfs1(int x)
+{
+    vis[x] = size[x] = 1;
+    for(int i = last[x]; i; i = e[i].next)
+    {
+        if(vis[e[i].to])continue;
+        dep[e[i].to] = dep[x] + 1;
+        ft[e[i].to] = x;       
+        dfs1(e[i].to);
+        size[x] += size[e[i].to];
+    }
+}
+void dfs2(int x, int chain)
+{
+    pl[x] = ++sz; bl[x] = chain;
+    int k = 0;
+    for(int i = last[x]; i; i = e[i].next)
+        if(dep[e[i].to] > dep[x] && size[k] < size[e[i].to])
+            k = e[i].to;
+    if(!k)return;
+    dfs2(k, chain);
+    for(int i = last[x]; i; i = e[i].next)
+        if(dep[e[i].to] > dep[x] && k != e[i].to)
+            dfs2(e[i].to, e[i].to);
+}
+void build(int k, int l, int r)
+{
+    L[k] = l; R[k] = r; tag[k] = 0;
+    if(l == r)
+    {
+        if(l != 1)S[k] = 1;
+        else S[k] = 0;
+        return;
+    }
+    int mid = (l + r) >> 1;
+    build(k << 1, l, mid);
+    build(k << 1 | 1, mid + 1, r);
+    S[k] = S[k << 1] + S[k << 1 | 1];
+}
+void change(int k, int x, int y)
+{
+    if(!S[k])return;
+    int l = L[k], r = R[k], mid = (l + r) >> 1;
+    if(l == x && y == r)
+    {
+        S[k] = 0, tag[k] = 1; return;
+    }
+    if(mid >= y)change(k << 1, x, y);
+    else if(mid < x)change(k << 1 | 1, x, y);
+    else
+    {
+        change(k << 1, x, mid);
+        change(k << 1 | 1, mid + 1, y);
+    }
+    S[k] = S[k << 1] + S[k << 1 | 1];
+}
+int query(int k, int x, int y)
+{
+    if(!S[k])return 0;
+    int l = L[k], r = R[k], mid = (l + r) >> 1;
+    if(l == x && y == r)
+        return S[k];
+    if(mid >= y)return query(k << 1, x, y);
+    else if(mid < x)return query(k << 1 | 1, x, y);
+    else
+        return query(k << 1, x, mid) + query(k << 1 | 1, mid + 1, y);
+}
+int solvesum(int x, int y)
+{
+    if(x == y)return 0;
+    int sum = 0;
+    while(bl[x] != bl[y])
+    {
+        if(dep[bl[x]]<dep[bl[y]])swap(x,y);
+        if(!vis[x])sum += query(1, pl[bl[x]], pl[x]);
+        x = ft[bl[x]];
+    }
+    if(pl[x] > pl[y])swap(x, y);    
+    if(pl[x] + 1 <= pl[y])
+        sum += query(1, pl[x] + 1, pl[y]);
+    return sum;
+}
+void add(int x, int y)
+{
+    if(x == y)return;
+    while(bl[x] != bl[y])
+    {
+        if(dep[bl[x]]<dep[bl[y]])swap(x,y);
+        if(!vis[x])
+        {
+            change(1, pl[bl[x]], pl[x]);
+            fa[find(x)] = find(pl[x]);
+            vis[x] = 1;
+        }
+        x = ft[bl[x]];
+    }
+    if(pl[x] > pl[y])swap(x, y);    
+    if(pl[x] + 1 <= pl[y])
+        change(1, pl[x] + 1, pl[y]);
+}
+int main()
+{
+    int Tes = F();
+    for(int cas = 1; cas <= Tes; cas++)
+    {
+        printf("Case #%d:\n", cas);
+        cnt = sz = 0;
+        n = F(); m = F();
+        for(int i = 1; i <= n; i++)
+            last[i] = vis[i] = 0;
+        for(int i = 1; i <= m; i++)
+            mark[i] = 0;
+        for(int i = 1; i <= n; i++)fa[i] = i;
+        for(int i = 1; i <= m; i++)
+        {
+            u[i] = F(); v[i] = F();
+            if(find(u[i]) != find(v[i]))
+            {
+                mark[i] = 1;
+                insert(u[i], v[i]);
+            }
+            fa[find(u[i])] = find(v[i]);
+        }
+        build(1,1,n);
+        dfs1(1);
+        dfs2(1,1);
+        for(int i = 1; i <= n; i++)vis[i] = 0;
+        for(int i = 1; i <= m; i++)
+            if(!mark[i])
+                add(u[i], v[i]);
+        int Q;
+        Q = F();
+        while(Q--)
+        {
+            int opt, u, v;
+            opt = F(); u = F(); v = F();
+            if(opt == 1)add(u, v);
+            else
+            {
+                int ans = solvesum(u, v);
+                printf("%d\n", ans);
+            }
+        }
+    }
+    return 0;
+}
+\end{lstlisting} 

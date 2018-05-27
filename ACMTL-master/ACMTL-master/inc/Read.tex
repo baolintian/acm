@@ -1,0 +1,8 @@
+\subsection{FWT}
+char ch,B[1<<15],*P=B,*T=B;
+#define getc() (P==T&&(T=(P=B)+fread(B,1,1<<15,stdin),P==T)?0:*P++)
+int aa;int F(){
+    while(ch=getc(),ch<'0'||ch>'9');aa=ch-48;
+    while(ch=getc(),ch>='0'&&ch<='9')aa=aa*10+ch-48;return aa;
+}
+\end{lstlisting}

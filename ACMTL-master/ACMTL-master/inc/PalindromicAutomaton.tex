@@ -1,0 +1,46 @@
+\subsection{回文自动机}
+考虑一个只包含小写拉丁字母的字符串s。我们定义s的一个子串t的“出
+现值”为t在s中的出现次数乘以t的长度。请你求出s的所有回文子串中的最
+大出现值。
+\begin{lstlisting}[language=C]
+ll ans;
+int n;
+char ch[300005];
+struct pam{
+	int cnt,last;
+	int a[300005][26],fa[300005],l[300005],size[300005];
+	pam(){
+	    cnt=1;fa[0]=fa[1]=1;l[1]=-1;
+	}
+	void extend(int c,int n){
+		int p=last;
+		while(ch[n-l[p]-1]!=ch[n])p=fa[p];
+		if(!a[p][c])
+		{
+			int now=++cnt,k=fa[p];
+			l[now]=l[p]+2;
+			while(ch[n-l[k]-1]!=ch[n])k=fa[k];
+			fa[now]=a[k][c];a[p][c]=now;
+		}
+		last=a[p][c];
+		size[last]++;
+	}
+	void solve(){
+		for(int i=cnt;i;i--)
+		{
+			size[fa[i]]+=size[i];
+			ans=max(ans,(ll)size[i]*l[i]);
+		}
+	}
+}pam;
+int main()
+{
+	scanf("%s",ch+1);
+	n=strlen(ch+1);
+	for(int i=1;i<=n;i++)
+		pam.extend(ch[i]-'a',i);
+	pam.solve();
+	printf("%lld\n",ans);
+	return 0;
+}
+\end{lstlisting}

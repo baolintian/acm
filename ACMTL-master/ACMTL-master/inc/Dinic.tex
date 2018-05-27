@@ -1,0 +1,46 @@
+\subsection{网络流}
+\subsubsection{Dinic}
+\begin{lstlisting}[language=C] 
+bool bfs()
+{
+	int head=0,tail=1;
+	for(int i=0;i<=T;i++)h[i]=-1;
+	q[0]=0;h[0]=0;
+	while(head!=tail)
+	{
+		int now=q[head];head++;
+		for(int i=last[now];i;i=e[i].next)
+			if(e[i].v&&h[e[i].to]==-1)
+			{
+				h[e[i].to]=h[now]+1;
+				q[tail++]=e[i].to;
+			}
+	}
+	return h[T]!=-1;
+}
+int dfs(int x,int f)
+{
+	if(x==T)return f;
+	int w,used=0;
+	for(int i=cur[x];i;i=e[i].next)
+		if(h[e[i].to]==h[x]+1)
+		{
+			w=f-used;
+			w=dfs(e[i].to,min(w,e[i].v));
+			e[i].v-=w;e[i^1].v+=w;
+			if(e[i].v)cur[x]=i;
+			used+=w;if(used==f)return f;
+		}
+	if(!used)h[x]=-1;
+	return used;
+}
+void dinic()
+{
+	while(bfs())
+	{
+		for(int i=0;i<=T;i++)
+			cur[i]=last[i];
+		ans+=dfs(0,inf);
+	}
+}
+\end{lstlisting}

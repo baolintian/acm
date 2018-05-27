@@ -1,0 +1,24 @@
+\subsection{lucas定理}
+\begin{lstlisting}[language=C]
+int qpow(ll a,ll b)
+{
+	ll ans=1;
+	for(int i=b;i;i>>=1,a=a*a%p)
+		if(i&1)ans=ans*a%p;
+	return ans;
+}
+ll C(int n,int m)
+{
+	if(m>n)return 0;
+	m=min(m,n-m);
+	ll s1=1,s2=1;
+	for(int i=0;i<m;i++)s1=s1*(n-i)%p;
+	for(int i=0;i<m;i++)s2=s2*(i+1)%p;
+	return s1*qpow(s2,p-2)%p;
+}
+int lucas(int n,int m)
+{
+	if(m==0)return 1;
+	return C(n%p,m%p)*lucas(n/p,m/p)%p;
+}
+\end{lstlisting} 

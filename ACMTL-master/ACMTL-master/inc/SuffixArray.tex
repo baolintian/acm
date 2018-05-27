@@ -1,0 +1,36 @@
+\subsection{后缀数组}
+后缀排序，输出SA数组以及height数组
+\begin{lstlisting}[language=C] 
+int n,p,q=1,k;
+char ch[100005];
+int sa[2][100005],rk[2][100005];
+int a[100005],h[100005],v[100005];
+void calsa(int *sa,int *rk,int *SA,int *RK)
+{
+	for(int i=1;i<=n;i++)v[rk[sa[i]]]=i;
+	for(int i=n;i;i--)
+		if(sa[i]>k)
+			SA[v[rk[sa[i]-k]]--]=sa[i]-k;
+	for(int i=n-k+1;i<=n;i++)
+		SA[v[rk[i]]--]=i;
+	for(int i=1;i<=n;i++)
+		RK[SA[i]]=RK[SA[i-1]]+(rk[SA[i-1]]!=rk[SA[i]]||rk[SA[i-1]+k]!=rk[SA[i]+k]);
+}
+void getsa()
+{
+	for(int i=1;i<=n;i++)v[a[i]]++;
+	for(int i=1;i<=30;i++)v[i]+=v[i-1];
+	for(int i=1;i<=n;i++)
+		sa[p][v[a[i]]--]=i;
+	for(int i=1;i<=n;i++)
+		rk[p][sa[p][i]]=rk[p][sa[p][i-1]]+(a[sa[p][i]]!=a[sa[p][i-1]]);
+	for(k=1;k<n;k<<=1,swap(p,q))
+		calsa(sa[p],rk[p],sa[q],rk[q]);
+	for(int i=1,k=0;i<=n;i++)
+	{
+		int j=sa[p][rk[p][i]-1];
+		while(a[i+k]==a[j+k])k++;
+		h[rk[p][i]]=k;if(k)k--;
+	}
+}
+\end{lstlisting}

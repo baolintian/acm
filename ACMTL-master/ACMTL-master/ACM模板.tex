@@ -1,0 +1,140 @@
+\documentclass[UTF8,a4paper]{ctexart}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{lastpage}
+\usepackage{setspace}
+\usepackage{indentfirst}
+
+\usepackage{fontspec}
+\setmonofont[Mapping={}]{Consolas}	%英文引号之类的正常显示，相当于设置英文字体
+\setsansfont{Menlo} %设置英文字体 Monaco, Consolas,  Fantasque Sans Mono
+\setmainfont{Menlo} %设置英文字体
+
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\lstset{
+  language=[ANSI]c,
+  basicstyle=\normalsize,
+  numbers=left,
+  keywordstyle=\color{blue},
+  % numberstyle={\tiny\color{lightgray}},
+  stepnumber=1, %行号会逐行往上递增
+  % numbersep=5pt,
+  showspaces=false,
+  showtabs=false,
+  tabsize=4,
+  breaklines=tr,
+  extendedchars=false %这一条命令可以解决代码跨页时，章节标题，页眉等汉字不显示的问题
+}
+
+\author{wmdcstdio,hzwer,KuribohG}
+\title{\Huge ACM模板}
+\begin{document} 
+\maketitle
+\tableofcontents
+\section{数学}
+\input{./inc/exgcd.tex}
+
+\input{./inc/LinearSieve.tex}
+
+\input{./inc/lucas.tex}
+
+\input{./inc/Gauss.tex}
+
+\input{./inc/GaussXor.tex}
+
+\input{./inc/BSGS.tex}
+
+\input{./inc/FFT.tex}
+
+\input{./inc/FFT_linear_recursion.tex}
+
+\input{./inc/FWT.tex}
+
+\input{./inc/MillerRabin.tex}
+
+\input{./inc/MatrixTree.tex}
+\section{数据结构}
+\input{./inc/Lowbit2.tex}
+
+\input{./inc/Splay.tex}
+
+\input{./inc/Treap.tex}
+
+\input{./inc/PresidentTree.tex}
+
+\input{./inc/MergeableHeap.tex}
+
+\input{./inc/KDtree.tex}
+
+\input{./inc/PersistentTrie.tex}
+
+\section{字符串}
+
+\input{./inc/KMP.tex}
+
+\input{./inc/Manacher.tex}
+
+\input{./inc/SuffixArray.tex}
+
+\input{./inc/SuffixAutomaton.tex}
+
+\input{./inc/ACAutomaton.tex}
+
+\input{./inc/PalindromicAutomaton.tex}
+
+\section{图论}
+
+\input{./inc/Dinic.tex}
+
+\input{./inc/CostFlow.tex}
+
+\input{./inc/TarjanBCC.tex}
+
+\input{./inc/TarjanCut.tex}
+
+\input{./inc/TreesOnRing.tex}
+
+\input{./inc/VirtualTree.tex}
+
+\input{./inc/TreePartition.tex}
+
+\input{./inc/ChainPartition.tex}
+
+\input{./inc/lct.tex}
+
+\input{./inc/2sat.tex}
+
+\subsection{./inc/Blossom.tex}
+
+\subsection{./inc/ManTree.tex}
+
+\section{动态规划}
+
+\input{inc/Decision.tex}
+
+\input{inc/Slope.tex}
+
+\input{inc/SteinerTree.tex}
+
+\section{计算几何}
+
+\input{inc/ConvexHull.tex}
+
+\input{inc/3DConvexHull.tex}
+
+\input{inc/RectangleCover.tex}
+
+\input{inc/Halfplane.tex}
+
+\input{inc/simpson.tex}
+
+\section{其它}
+
+\input{inc/java.tex}
+
+\maketitle 
+\end{document}

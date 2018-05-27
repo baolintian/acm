@@ -1,0 +1,60 @@
+\subsection{BigInteger}
+\begin{lstlisting}[language=java]
+import java.util.*;
+import java.io.*;
+import java.math.*;
+import java.math.BigInteger;
+class Pr{
+    BigInteger A, B;
+    Pr(BigInteger _A,BigInteger _B)
+    {
+        A = _A;
+        B = _B;
+    }
+};
+class P{
+    int cnt = 0;
+    BigInteger MAX = new BigInteger("2000000000000000000000000000000");
+    Pr[] sol = new Pr[500];//equation: x^2 - 3*y^2 = 1
+    BigInteger calc(BigInteger n){//t>=n
+        for(int i=0;i<cnt;i++){
+            BigInteger k = sol[i].A;
+            BigInteger I2 = BigInteger.valueOf(2);
+            if(k.multiply(I2).compareTo(n) >= 0) return k.multiply(I2);            
+        }
+        return BigInteger.valueOf(-1);
+    }
+    void init(){
+        BigInteger x0=BigInteger.valueOf(2);
+        BigInteger y0=BigInteger.valueOf(1);
+        BigInteger x=x0;
+        BigInteger y=y0;
+        BigInteger d=BigInteger.valueOf(3);
+        while(x.compareTo(MAX) <= 0){
+            sol[cnt++] = new Pr(x,y);
+            //System.out.println(x.toString());
+            //System.out.println(y.toString());
+            BigInteger x1=x.multiply(x0).add(d.multiply(y).multiply(y0));
+            BigInteger y1=x.multiply(y0).add(y.multiply(x0));
+            x=x1;
+            y=y1;
+        }
+    }
+    void run(){
+        init();
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt();
+        for(int cas = 1; cas <= T; cas++)
+            {
+                BigInteger n = sc.nextBigInteger();
+                System.out.println(calc(n).toString());
+            }
+    }
+};
+public class Main{
+    public static void main(String[] args){
+        P obj = new P();
+        obj.run();
+    }
+}
+\end{lstlisting} 

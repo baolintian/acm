@@ -1,0 +1,47 @@
+\subsection{Miller Rabin判素数}
+随机化判素数方法，$O(\log n)$
+\begin{lstlisting}[language=C]
+LL mul(LL x,LL n,LL MOD)
+{
+	LL res=x*n-(LL)((long double)x*n/MOD+0.5)*MOD;
+	while(res<0) res+=MOD;
+	while(res>=MOD) res-=MOD;
+	return res;
+}
+LL qpow(LL x,LL n,LL MOD)
+{
+	x=(x%MOD+MOD)%MOD;
+	LL p=x,con=1;
+	while(n)
+	{
+		if(n&1) con=mul(con,p,MOD);
+		p=mul(p,p,MOD);
+		n>>=1;
+	}
+	return con;
+}
+bool witness(LL a,LL b)
+{
+	if(a==b) return true;
+	LL s=b-1;
+	int t=0;
+	while(!(s&1)) s>>=1,t++;
+	LL x=qpow(a,s,b);
+	if(x==1) return 1;
+	while(t--)
+	{
+		if(x==b-1) return true;
+		x=mul(x,x,b);
+		if(x==1) return false;
+	}
+	return false;
+}
+bool is_prime(LL x)
+{
+	if(x==0||x==1) return false;
+	static int p[]={2,3,5,7,11,13,17,19,23,29,31};
+	for(int i=0;i<=10;i++)
+		if(!witness(p[i],x)) return false;
+	return true;
+}
+\end{lstlisting}

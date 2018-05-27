@@ -1,0 +1,50 @@
+\subsection{Tarjan求点双联通分量}
+点双连通分量存放在bcc数组中。
+
+注意割点数组在这份代码中不一定正确！DFS根节点是割点的条件是它有两个或以上的儿子！
+\begin{lstlisting}[language=C]
+int n,m;
+int head[MAXN],to[MAXN],next[MAXN],cnt=1;
+int dfn[MAXN],low[MAXN],is_cut[MAXN],belongn[MAXN],tot,dfs_clock;
+pair<int,int> S[MAXN],tmp,now;
+int top;
+vector<int> bcc[MAXN];
+vector<pair<int,int> > E[MAXN];
+inline void adde(int f,int t)
+{
+	cnt++,to[cnt]=t,next[cnt]=head[f],head[f]=cnt;
+	cnt++,to[cnt]=f,next[cnt]=head[t],head[t]=cnt;
+}
+void Tarjan(int x,int father)
+{
+	low[x]=dfn[x]=++dfs_clock;
+	for(int i=head[x];i;i=next[i])
+	{
+		if((i^father)==1) continue;
+		if(!dfn[to[i]])
+		{
+			S[++top]=make_pair(x,to[i]);
+			Tarjan(to[i],i);
+			low[x]=min(low[x],low[to[i]]);
+			if(low[to[i]]>=dfn[x])
+			{
+				is_cut[x]=true,++tot;
+				tmp=make_pair(x,to[i]);
+				now=make_pair(-1,-1);
+				while(now!=tmp)
+				{
+					now=S[top--];
+					E[tot].push_back(now);
+					if(belongn[now.first]!=tot) belongn[now.first]=tot,bcc[tot].push_back(now.first);
+					if(belongn[now.second]!=tot) belongn[now.second]=tot,bcc[tot].push_back(now.second);
+				}
+			}
+		}
+		else if(dfn[to[i]]<dfn[x])
+		{
+			S[++top]=make_pair(x,to[i]);
+			low[x]=min(low[x],dfn[to[i]]);
+		}
+	}
+}
+\end{lstlisting}

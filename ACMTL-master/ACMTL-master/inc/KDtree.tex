@@ -1,0 +1,83 @@
+\subsection{KDtree}
+\begin{lstlisting}[language=C]
+int x[100005],y[100005];
+int n,m,F,rt,ans=inf;
+int sqr(int x)
+{
+    return x*x;
+}
+struct P{
+	int d[2],mn[2],mx[2],l,r;
+	int& operator[](int x){
+		return d[x];
+	}
+	friend bool operator<(P a,P b){
+		return a[F]<b[F];
+	}
+	friend int dis(P a,P b){
+		return sqr(a[0]-b[0])+sqr(a[1]-b[1]);
+	}
+}p[500005];
+struct kdtree{
+	P t[100005],T;
+	int ans;
+	void update(int k){
+		int l=t[k].l,r=t[k].r;
+		for(int i=0;i<2;i++)
+		{
+			t[k].mn[i]=t[k].mx[i]=t[k][i];
+			if(l)t[k].mn[i]=min(t[k].mn[i],t[l].mn[i]);
+			if(r)t[k].mn[i]=min(t[k].mn[i],t[r].mn[i]);
+			if(l)t[k].mx[i]=max(t[k].mx[i],t[l].mx[i]);
+			if(r)t[k].mx[i]=max(t[k].mx[i],t[r].mx[i]);
+		}
+	}
+    int getmn(P a){
+		int ans=0;
+		for(int i=0;i<2;i++)
+        {
+            if(a.mn[i]>T[i])ans+=sqr(a.mn[i]-T[i]);
+            if(a.mx[i]<T[i])ans+=sqr(T[i]-a.mx[i]);
+        }
+		return ans;
+	}
+	int build(int l,int r,int now){
+		F=now;
+		int mid=(l+r)>>1;
+		nth_element(p+l,p+mid,p+r+1);
+		t[mid]=p[mid];
+        for(int i=0;i<2;i++)
+            t[mid].mn[i]=t[mid].mx[i]=t[mid][i];
+		if(l<mid)t[mid].l=build(l,mid-1,now^1);
+		if(r>mid)t[mid].r=build(mid+1,r,now^1);
+		update(mid);
+		return mid;
+	}
+	void querymn(int k){// 最近点查询
+		int tmp=dis(t[k],T);
+		ans=min(ans,tmp);
+		int l=t[k].l,r=t[k].r,dl=inf,dr=inf;
+		if(l)dl=getmn(t[l]);
+        if(r)dr=getmn(t[r]);
+		if(dl<dr)
+		{
+			if(dl<ans)
+                querymn(l);
+			if(dr<ans)
+                querymn(r);
+		}
+		else 
+		{
+			if(dr<ans)
+                querymn(r);
+			if(dl<ans)
+                querymn(l);
+		}
+	}
+	int query(int x,int y){
+		T[0]=x;T[1]=y;
+		ans=inf,querymn(rt);
+		return ans;
+	}
+}kdtree;
+\end{lstlisting}

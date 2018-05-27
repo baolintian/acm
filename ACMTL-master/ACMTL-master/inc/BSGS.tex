@@ -1,0 +1,39 @@
+\subsection{BSGS}
+使用大步小步算法计算离散对数
+\begin{lstlisting}[language=C]
+ll quickpow(ll a,ll n){//这个是来卖萌的
+	ll ans=1;
+	while(n){
+		if(n&1) ans=(ans*a)%MOD;
+		a=(a*a)%MOD;
+		n>>=1;
+	}
+	return ans;
+}
+void extend_gcd(ll a,ll b,ll &x,ll &y,ll &d){
+	if(b==0){d=a;x=1;y=0;}
+	else{extend_gcd(b,a%b,y,x,d);y-=(a/b)*x;}
+}
+ll inverse(ll a){//a对模MOD的逆元,无解返回-1
+	ll x,y,d;
+	extend_gcd(a,MOD,x,y,d);
+	return d==1?(x+MOD)%MOD:-1;//这个+不可少,因为x可能为负数
+}
+ll dclog(ll a,ll b){//求解方程:a^x=b(模 MOD),返回最小解,无解返回-1
+	//采用大步小步法
+	map<ll,ll> base;
+	ll m=(ll)sqrt(MOD+0.5),e=1,i,v;
+	v=inverse(quickpow(a,m));
+	base[1]=0;
+	for(i=1;i<m;i++){
+		e=(e*a)%MOD;
+		if(!base.count(e)) base[e]=i;
+	}
+	for(i=0;i<=MOD/m;i++){
+		if(base.count(b)) return (i*m+base[b])%(MOD-1);
+		b=(b*v)%MOD;
+	}
+	return -1;
+}
+
+\end{lstlisting}

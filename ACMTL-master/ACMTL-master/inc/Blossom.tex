@@ -1,0 +1,58 @@
+\subsection{一般图最大匹配}
+\begin{lstlisting}[language=C]
+#include <cstdio>
+#include <cctype>
+using namespace std;
+char buf[1000000];
+int read(){
+	static char* ch=buf;
+	int i=0;
+	for(;!isdigit(*ch);ch++);
+	while(i=i*10-'0'+*ch,isdigit(*++ch));
+	return i;
+}
+const int N=510,E=124760*2;
+int to[E],bro[E],head[N],e=1;
+int lnk[N],vis[N],tim=0;
+inline void ae(int u,int v){
+	to[e]=v,bro[e]=head[u],head[u]=e++;
+}
+inline void add(int u,int v){
+	ae(u,v),ae(v,u);
+}
+bool dfs(int x){
+	vis[x]=tim;
+	for(int i=head[x],v;i;i=bro[i]){
+		v=to[i];
+		if(!lnk[v]){
+			lnk[x]=v,lnk[v]=x;
+			return true;
+		}else if(vis[lnk[v]]<tim){
+			int w=lnk[v];
+			lnk[x]=v,lnk[v]=x,lnk[w]=0;
+			if(dfs(w)){
+				return true;
+			}
+			lnk[w]=v,lnk[v]=w,lnk[x]=0;
+		}
+	}
+	return false;
+}
+int main(){
+	fread(buf,1,1000000,stdin);
+	int n=read(),ans=0;
+	for(int tot=read();tot--;add(read(),read()));
+	for(int i=1;i<=n;i++){
+		if(!lnk[i]){
+			tim++;
+			ans+=dfs(i);
+		}
+	}
+	printf("%d\n",ans);
+	for(int i=1;i<=n;i++){
+		printf("%d ",lnk[i]);
+	}
+	putchar('\n');
+	return 0;
+}
+\end{lstlisting}

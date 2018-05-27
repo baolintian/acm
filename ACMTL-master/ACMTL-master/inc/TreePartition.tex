@@ -1,0 +1,72 @@
+\subsection{点分治}
+\begin{lstlisting}[language=C]
+1.边尽量用边表存
+2.ans记得开long long
+int n,cnt,tot,rt;
+int last[N],f[N],size[N],val[N];
+bool vis[N];
+struct edge{
+	int to,next,v;
+}e[2*N];
+void insert(int u,int v,int w)
+{
+    e[++cnt].to=v;e[cnt].next=last[u];last[u]=cnt;e[cnt].v=w;
+    e[++cnt].to=u;e[cnt].next=last[v];last[v]=cnt;e[cnt].v=w;
+}
+void getrt(int x,int fa)//求重心
+{
+    size[x]=1;f[x]=0;
+    for(int i=last[x];i;i=e[i].next)
+        if(e[i].to!=fa&&!vis[e[i].to])
+        {
+            getrt(e[i].to,x);
+            f[x]=max(f[x],size[e[i].to]);
+            size[x]+=size[e[i].to];
+        }
+    f[x]=max(f[x],tot-size[x]);
+    if(f[x]<f[rt])rt=x;
+}
+void getdis(int x,int fa,int flag)//加入or查询子树信息
+{
+    if(flag==0)...
+    else ans...
+    for(int i=last[x];i;i=e[i].next)
+        if(e[i].to!=fa&&!vis[e[i].to])
+        {
+        	val[e[i].to]=val[x]+e[i].v;
+            getdis(e[i].to,x,flag);
+        }
+}
+void solve(int x)
+{
+	vis[x]=1;
+	//此处清空一下所用数据结构
+	for(int i=last[x];i;i=e[i].next)
+		if(!vis[e[i].to])
+		{
+			val[e[i].to]=e[i].v;
+			getdis(e[i].to,x,1);//查询
+			getdis(e[i].to,x,0);//插入
+		}
+	for(int i=last[x];i;i=e[i].next)
+		if(!vis[e[i].to])
+		{
+			tot=size[e[i].to];rt=0;
+			getrt(e[i].to,x);
+			solve(rt);
+		}
+}
+int main()
+{
+	int T;scanf("\%d",&T);
+	for(int cas=1;cas<=T;cas++)
+	{
+		memset(vis,0,sizeof(vis));
+        memset(last,0,sizeof(last));
+        ans=cnt=0;
+		tot=n;f[0]=n;rt=0;
+		getrt(1,0);
+		solve(rt);
+	}
+}
+\end{lstlisting}

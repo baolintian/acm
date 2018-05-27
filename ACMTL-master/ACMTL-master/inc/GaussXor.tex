@@ -1,0 +1,50 @@
+\subsection{异或方程组高斯消元}
+用高斯消元法解异或方程组，求秩
+\begin{lstlisting}[language=C]
+bool Gauss_Jordan(bool A[SIZE][SIZE],int n,int m){//是否有解
+	//行数0~n-1,列数0~m(m这一列是常数)
+	for(int i=0;i<n&&i<m;i++){
+		int p=i;
+		for(int k=i+1;k<n;k++) if(A[k][i]>A[p][i]) p=k;
+		if(!A[p][i]) continue;
+		for(int k=0;k<=m;k++) swap(A[i][k],A[p][k]);
+		for(int j=0;j<n;j++){
+			if(j==i||!A[j][i]) continue;
+			for(int k=0;k<=m;k++) A[j][k]^=A[i][k];
+		}
+	}
+	//两种0=1的姿势
+	for(int i=0;i<n&&i<m;i++)
+		if(A[i][i]==0&&A[i][m]!=0) return false;
+	for(int i=m;i<n;i++)
+		if(A[i][m]!=0) return false;
+	return true;
+}
+int xor_rank(ll A[SIZEN][SIZEN],int b[SIZEN],int n,int m){
+	//使用高斯约当消元法,求异或方程组的秩
+	//A是异或方程组,b是方程右边的常数向量,n是行数,m是列数
+	int i,j,k;
+	for(i=1;i<=n;i++){//第i次消元
+		for(k=i;k<=m;k++){//选取消元列
+			for(j=i;j<=n;j++){//选取消元行
+				if(A[j][k]) goto BREAK;
+			}
+		}
+		BREAK:;
+		if(j==n+1) break;//找不到可消元的元素了
+		if(i!=j){//交换行
+			for(int km=1;km<=m;km++) swap(A[i][km],A[j][km]);
+			swap(b[i],b[j]);
+		}
+		if(i!=k) for(int km=1;km<=n;km++) swap(A[km][i],A[km][k]);//交换列
+		for(j=1;j<=n;j++){//消元
+			if(j==i) continue;
+			if(A[j][i]){
+				for(int km=1;km<=m;km++) A[j][km]^=A[i][km];
+				b[j]^=b[i];
+			}
+		}
+	}
+	return i-1;
+}
+\end{lstlisting}

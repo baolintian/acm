@@ -1,0 +1,65 @@
+\subsection{主席树}
+\begin{lstlisting}[language=C]
+int T,n,m,ans;
+int cnt,a[200005],nxt[200005],last[200005];
+int rt[200005],ls[10000005],rs[10000005],v[10000005];
+void insert(int x,int &y,int l,int r,int val)
+{
+    int mid=(l+r)>>1;
+    y=++cnt;v[y]=v[x]+1;
+    if(l==r)return;
+    ls[y]=ls[x];rs[y]=rs[x];
+    if(val<=mid)
+        insert(ls[x],ls[y],l,mid,val);
+    else insert(rs[x],rs[y],mid+1,r,val);
+}
+int query(int x,int y,int l,int r,int K)//查询树x+1到树y中大于K的元素个数
+{
+    if(l==r)return 0;
+    int mid=(l+r)>>1;
+    if(K<=mid)return v[rs[y]]-v[rs[x]]+query(ls[x],ls[y],l,mid,K);
+    else return query(rs[x],rs[y],mid+1,r,K);
+}
+int solve(int l,int r)
+{
+    int ans=query(rt[l-1],rt[r],1,n+1,r);
+    return ans;
+}
+int main()
+{
+    T=read();
+    for(int test=1;test<=T;test++)
+    {
+        n=read();m=read();cnt=ans=0;
+        for(int i=1;i<=n;i++)
+            a[i]=read();
+        for(int i=0;i<=200000;i++)last[i]=n+1;
+        for(int i=n;i>=1;i--)
+        {
+            nxt[i]=last[a[i]];
+            last[a[i]]=i;
+        }
+        for(int i=1;i<=n;i++)
+            insert(rt[i-1],rt[i],1,n+1,nxt[i]);
+        cout<<"Case #"<<test<<":";
+        for(int i=1;i<=m;i++)
+        {
+            int l=read(),r=read();
+            l=(l+ans)%n+1,r=(r+ans)%n+1;
+            if(l>r)swap(l,r);
+            int t=solve(l,r);
+            t=(t+1)/2;
+            int L=l,R=r;
+            while(L<=R)//二分查询x，使得数列L到x有t个互相不同的元素
+            {
+                int mid=(L+R)>>1;
+                if(solve(l,mid)>=t)ans=mid,R=mid-1;
+                else L=mid+1;
+            }
+            cout<<' '<<ans;
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+\end{lstlisting} 

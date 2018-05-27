@@ -1,0 +1,105 @@
+\subsection{斯坦纳森林}
+\begin{lstlisting}[language=C]
+#include<map>
+#include<set>
+#include<cmath>
+#include<stack>
+#include<queue>
+#include<cstdio>
+#include<vector>
+#include<cstring>
+#include<cstdlib>
+#include<iostream>
+#include<algorithm>
+#define inf 1000000000
+#define ll long long
+#define pa pair<int,int>
+using namespace std;
+ll read()
+{
+    ll x=0,f=1;char ch=getchar();
+    while(ch<'0'||ch>'9'){if(ch=='-')f=-1;ch=getchar();}
+    while(ch>='0'&&ch<='9'){x=x*10+ch-'0';ch=getchar();}
+    return x*f;
+}
+int n, m, p, cnt;
+bool vis[1005];
+int last[1005];
+int c[15], d[15];
+int f[1005][1024], cs[1024], g[1024];
+struct data{
+	int to, next, v;
+}e[1000005];
+void insert(int u, int v, int w)
+{
+	e[++cnt].to = v; e[cnt].next = last[u]; last[u] = cnt; e[cnt].v = w;
+	e[++cnt].to = u; e[cnt].next = last[v]; last[v] = cnt; e[cnt].v = w;
+}
+priority_queue<pa, vector<pa>, greater<pa> >q;
+void dijkstra(int st)
+{
+	memset(vis, 0, sizeof(vis));
+	for(int i = 1; i <= n; i++)
+		if(f[i][st] < inf)q.push(make_pair(f[i][st], i));
+	while(!q.empty())
+	{
+		int now = q.top().second; q.pop();
+		if(vis[now])continue; vis[now] = 1;
+		for(int i = last[now]; i; i = e[i].next)
+			if(f[now][st] + e[i].v < f[e[i].to][st])
+			{
+				f[e[i].to][st] = f[now][st] + e[i].v;
+				q.push(make_pair(f[e[i].to][st], e[i].to));
+			}
+	}
+}
+void solve()
+{
+	memset(f, 127 / 2, sizeof(f));
+	memset(g, 127 / 2, sizeof(g));
+	memset(cs, 0, sizeof(cs));
+	for(int i = 1; i <= n; i++)
+		f[i][0] = 0;
+	for(int i = 1; i <= p; i++)
+		f[d[i]][1 << (i - 1)] = 0;
+	for(int S = 1; S < (1 << p); S++) //S 为情报站状态
+	{
+		for(int i = 1; i <= n; i++)
+			for(int st = (S - 1) & S; st; st = (st - 1) & S)
+				f[i][S] = min(f[i][S], f[i][st] + f[i][S - st]);
+		dijkstra(S);
+	}
+	for(int S = 1; S < 1024; S++) //S 为频道状态
+	{
+		for(int i = 1; i <= p; i++)
+			if((1 << (c[i] - 1)) & S)
+				cs[S] += (1 << (i - 1));
+		for(int i = 1; i <= n; i++)
+			g[S] = min(g[S], f[i][cs[S]]);
+	}
+	//将 S 中的频道建成一棵斯坦纳树，至少要包含情报站 cs[S]
+	for(int S = 1; S < 1024; S++) //S 为频道状态
+		for(int st = (S - 1) & S; st; st = (st - 1) & S)
+			g[S] = min(g[S], g[st] + g[S - st]);						
+}
+int main()
+{
+	while(1)
+	{
+		n = read(), m = read(), p = read();
+		if(n == 0)break;
+		cnt = 0;
+		memset(last, 0, sizeof(last));
+		for(int i = 1; i <= m; i++)
+		{
+			int u = read(), v = read(), w = read();
+			insert(u, v, w);
+		}
+		for(int i = 1; i <= p; i++)
+			c[i] = read(), d[i] = read();
+		solve();
+		printf("%d\n", g[1023]);
+	}
+	return 0;
+}
+\end{lstlisting}

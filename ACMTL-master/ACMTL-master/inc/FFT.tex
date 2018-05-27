@@ -1,0 +1,129 @@
+\subsection{FFT}
+\begin{lstlisting}[language=C]
+const int SIZEN=800010,BASE=10;
+const double PI=acos(-1.0),eps=1e-6;
+class Complex{//复数
+public:
+	double x,y;//x+yi
+	Complex(double x_=0,double y_=0){x=x_,y=y_;}
+	void print(void){cout<<"("<<x<<","<<y<<")";}
+	void clear(void){x=y=0;}
+};
+void print(Complex a){printf("%.8lf+%.8lfi",a.x,a.y);}
+void swap(Complex &a,Complex &b){Complex c=a;a=b,b=c;}
+Complex operator + (Complex a,Complex b){return Complex(a.x+b.x,a.y+b.y);}
+Complex operator - (Complex a,Complex b){return Complex(a.x-b.x,a.y-b.y);}
+Complex operator * (Complex a,Complex b){return Complex(a.x*b.x-a.y*b.y,a.x*b.y+b.x*a.y);}
+Complex operator * (Complex a,double b){return Complex(a.x*b,a.y*b);}
+Complex operator / (Complex a,double b){return Complex(a.x/b,a.y/b);}
+class Poly{
+public:
+	int n;
+	Complex s[SIZEN];
+	void Initialize(char str[]){
+		n=strlen(str);
+		for(int i=0;i<n;i++) s[i]=Complex(str[n-1-i]-'0',0);
+	}
+	void Read(void){
+		static char str[SIZEN];
+		scanf("%s",str);
+		Initialize(str);
+	}
+	void Assign(char str[]){
+		static int a[SIZEN];
+		int len;
+		for(int i=0;i<n;i++) a[i]=int(s[i].x+0.5);
+		for(len=0;len<n||a[len];len++){
+			a[len+1]+=a[len]/BASE;
+			a[len]%=BASE;
+		}
+		while(len>1&&!a[len-1]) len--;
+		for(int i=0;i<len;i++) str[i]=a[len-1-i]+'0';
+		str[len]=0;
+	}
+	void Print(void){
+		static char str[SIZEN];
+		Assign(str);
+		printf("%s\n",str);
+	}
+	void Rader_Transform(void){
+		int j=0,k;
+		for(int i=0;i<n;i++){
+			if(j>i) swap(s[i],s[j]);
+			k=n;
+			while(j&(k>>=1)) j&=~k;
+			j|=k;
+		}
+	}
+	void FFT(bool type){//type=1是求值(系数求点),type=0是插值(点求系数)
+		Rader_Transform();//不能忘了
+		double pi=type?PI:-PI;
+		Complex w0;
+		for(int step=1;step<n;step<<=1){
+			double alpha=pi/step;
+			Complex wn(cos(pi/step),sin(pi/step)),wk(1.0,0.0);
+			for(int k=0;k<step;k++){
+				for(int Ek=k;Ek<n;Ek+=step<<1){
+					int Ok=Ek+step;
+					Complex t=wk*s[Ok];
+					s[Ok]=s[Ek]-t;
+					s[Ek]=s[Ek]+t;
+				}
+				wk=wk*wn;
+			}
+		}
+		if(!type) for(int i=0;i<n;i++) s[i]=s[i]/n;
+	}
+	void operator *= (Poly &b){
+		int S=1;while(S<n+b.n) S<<=1;
+		n=b.n=S;
+		FFT(true);
+		b.FFT(true);
+		for(int i=0;i<n;i++) s[i]=s[i]*b.s[i];
+		FFT(false);
+	}
+};
+\end{lstlisting}
+\subsection{FFT for zyh}
+$O(k \log k)$
+
+首先将$k$赋值为大于两个多项式中最大的次数界的最小的$2$的幂次的二倍。$v = 0$为DFT，$v = 1$为IDFT，不需要在结束后除以$k$，该段已在$v=1$时处理。
+
+先调用一次\texttt{initFFT(k)}。
+\begin{lstlisting}[language=C]
+const double PI=2*asin(1);
+struct P{double x,y;};
+P operator+(const P &i,const P &j){return (P){i.x+j.x,i.y+j.y};}
+P operator-(const P &i,const P &j){return (P){i.x-j.x,i.y-j.y};}
+P operator*(const P &i,const P &j){double p=i.x*j.x,q=i.y*j.y,r=(i.x+i.y)*(j.x+j.y);return (P){p-q,r-p-q};}
+P operator/(const P &i,int j){return (P){i.x/j,i.y/j};}
+int k;
+P w[2][MAXK];
+void initFFT(int k)
+{
+    for(int i=0;i<=k;i++)
+        w[0][i]=w[1][k-i]=(P){cos(2*i*PI/k),sin(2*i*PI/k)};
+}
+void FFT(P x[],int k,int v)
+{
+	int i,j,l;P tmp;
+	for(i=j=0;i<k;i++)
+	{
+		if(i>j) swap(x[i],x[j]);
+		for(l=k>>1;(j^=l)<l;l>>=1);
+	}
+	for(i=2;i<=k;i<<=1)
+		for(j=0;j<k;j+=i)
+			for(l=0;l<(i>>1);l++)
+			{
+				tmp=x[j+l+(i>>1)]*w[v][k/i*l];
+				x[j+l+(i>>1)]=x[j+l]-tmp;
+				x[j+l]=x[j+l]+tmp;
+			}
+    if(v)
+    {
+        for(int i=0;i<k;i++)
+            x[i]=x[i]/k;
+    }
+}
+\end{lstlisting}
